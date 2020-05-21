@@ -52,7 +52,7 @@ export const getTokens = async (web3, ipfs) => {
 
 	const tokenIDs = await Promise.all(new Array(totalSupply).fill(0).map((_, i) => contract.methods.tokenByIndex(i).call()));
 	let tokenURIs = await Promise.all(tokenIDs.map((id) => contract.methods.tokenURI(id).call()));
-	tokenURIs = tokenURIs.filter((uri, i) => i === 0);
+	tokenURIs = tokenURIs.filter((uri, i) => i > 17);
 	const tokenMetaData = (await Promise.all(tokenURIs.map((uri) => ipfs.cat(uri)))).map((buffer) => JSON.parse(buffer.toString('utf8')));
 	const images = (await Promise.all(tokenMetaData.map((metaData) => ipfs.cat(metaData.image))));
 	const tokens = tokenMetaData.map((metaData, i) => {
@@ -73,7 +73,8 @@ export const getMyTokens = async (web3, ipfs) => {
 	}
 
 	const myTokenIDs = await contract.methods.tokensOfOwner(addresses[0]).call();
-	const myTokenURIs = await Promise.all(myTokenIDs.map((id) => contract.methods.tokenURI(id).call()));
+	let myTokenURIs = await Promise.all(myTokenIDs.map((id) => contract.methods.tokenURI(id).call()));
+	myTokenURIs = myTokenURIs.filter((uri, i) => i > 17);
 	const myTokenMetaData = (await Promise.all(myTokenURIs.map((uri) => ipfs.cat(uri)))).map((buffer) => JSON.parse(buffer.toString('utf8')));
 	const images = (await Promise.all(myTokenMetaData.map((metaData) => ipfs.cat(metaData.image))));
 	const myTokens = myTokenMetaData.map((metaData, i) => {
